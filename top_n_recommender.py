@@ -172,3 +172,27 @@ for user in test_sub_dict:
 	user_hits[user] = len(set(test_sub_dict[user]).intersection(set(results[user])))
 
 print  sum(user_hits.values())
+
+# find the percentage of new businesses and old businesses
+reco_buss = [item   for val in test_sub_dict.values() for item in val]
+
+test_buss_attr = business[business['business_id'].isin(reco_buss)][['business_id','review_count']]
+
+test_buss_attr['new_business']=0
+test_buss_attr['old_business']=0
+
+# defining old business as ones that got more than 120 reviews 
+test_buss_attr['new_business'][business['review_count']<=120]= 1
+test_buss_attr['old_business'][business['review_count']>120]= 1
+
+test_buss_attr.drop_duplicates(inplace= True)
+
+# Calculating the % of new businesses and old businesses recommended
+print "% of new business recommeded", sum(test_buss_attr['new_business']) * 100.0 /len(test_buss_attr)
+print "% of old businesses recommeded", sum(test_buss_attr['old_business']) * 100.0 /len(test_buss_attr)
+
+#Coverage of a top n recommender
+
+unique_buss = set(reco_buss)
+
+coverage = len(unique_buss) *100.0 /len(business_features2)
